@@ -89,7 +89,7 @@ class Paddel{
         this.vel = 10;
 
         this.width = 20;
-        this.height = 100;
+        this.height = 140;
 
         this.color = "white";
 
