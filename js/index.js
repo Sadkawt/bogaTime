@@ -166,26 +166,68 @@ class Counter
         if (player == 1){this.p1 += 1;}
         if (player == 2){this.p2 += 1;}
     }
+    
+    reset()
+    {
+        this.p1 = 0;
+        this.p2 = 0;
+    }
 }
 
 
 function drawGame(){
     requestAnimationFrame(drawGame);
-    clearScreen();
-    ball.update();
-    ball.draw();
-    paddel1.update();
-    paddel2.update();
-    checkCollision();
-    paddel1.draw();
-    paddel2.draw();
-    counter.draw();
-
-    var state = ball.outOfBounds();
-    if (state != 0)
+    if (gameWon == false)
     {
-        counter.update(state);
-        state = 0;
+        clearScreen(); 
+        if (running == true)
+        {
+
+            ball.update();
+            ball.draw();
+            paddel1.update();
+            paddel2.update();
+            checkCollision();
+        }
+        paddel1.draw();
+        paddel2.draw();
+        counter.draw();
+
+        var state = ball.outOfBounds();
+        if (state != 0)
+        {
+            counter.update(state);
+            state = 0;
+            if (counter.p1 > 2 || counter.p2 > 2)
+            {
+                gameWon = true;
+                if (counter.p1 > counter.p2)
+                {
+                    winner = 1;
+                }
+                else
+                {
+                    winner = 2;
+                }
+            }
+        }
+    }
+    else
+    {
+        if (winner == 1)
+        {
+            ctx.fillStyle = "white";
+            ctx.fillText("SPELARE 1 HAR VUNNIT (Gratis båga)", 20, 400);
+            counter.reset();
+
+        }
+
+        else if (winner == 2)
+        {
+            ctx.fillStyle = "white";
+            ctx.fillText("SPELARE 2 HAR VUNNIT (Gratis båga)", 20, 400);
+            counter.reset();
+        }
     }
 }
 
@@ -209,6 +251,11 @@ function keyDown(event) {
     }
     else if (event.keyCode == 76) {
         paddel2.setMoveStatus(1);
+    }
+    else if (event.keyCode == 13)
+    {
+        running = true;
+        gameWon = false;
     }
 }
 
@@ -244,5 +291,8 @@ const paddel1 = new Paddel(0);
 const paddel2 = new Paddel(canvas.width-20);
 const ball = new Ball();
 const counter = new Counter();
+var running = false;
+var gameWon = false;
+var winner = 0;
 drawGame();
 //setInterval(drawGame, 1000/60);
