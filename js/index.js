@@ -216,6 +216,7 @@ function drawGame(){
     {
         if (winner == 1)
         {
+            counter.draw();
             ctx.fillStyle = "white";
             ctx.fillText("SPELARE 1 HAR VUNNIT (Gratis båga)", 20, 400);
             counter.reset();
@@ -224,6 +225,7 @@ function drawGame(){
 
         else if (winner == 2)
         {
+            counter.draw();
             ctx.fillStyle = "white";
             ctx.fillText("SPELARE 2 HAR VUNNIT (Gratis båga)", 20, 400);
             counter.reset();
