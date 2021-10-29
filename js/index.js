@@ -1,19 +1,21 @@
 const canvas = document.getElementById("gameArea");
 const ctx = canvas.getContext("2d");
+ctx.font = '48px Comic Sans MS';
 
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
   }
-  
 
 class Ball{
     constructor()
     {
         this.x = canvas.width/2;
         this.y = canvas.height/2;
-
         this.yVel = getRandomArbitrary(-4,4);
-        this.xVel = Math.sqrt(Math.pow(5,2)-Math.pow(this.yVel, 2))
+
+        if (getRandomArbitrary(0,2) > 1){var direction = 1;}
+        else {var direction = -1;}
+        this.xVel = direction*Math.sqrt(Math.pow(5,2)-Math.pow(this.yVel, 2))
 
         this.radius = 10;
 
@@ -35,19 +37,47 @@ class Ball{
 
         if (this.y + this.radius > canvas.height || 0 > this.y - this.radius)
         {
-            this.yVel *= -1;
+            this.yVel *= -1.1;
         }
     }
 
-    changeDir()
+    bounce(newPos)
     {
-        this.xVel *= -1;
+        this.x = newPos
+        this.xVel *= -1.05;
     }
 
-    x(){return this.x;}
-    y(){return this.y;}
-    radius(){return this.radius;}
+    reset(winner)
+    {
+        this.x = canvas.width/2;
+        this.y = canvas.height/2;
+        this.yVel = getRandomArbitrary(-4,4);
 
+        if (winner == 1)
+        {
+            this.xVel = -Math.sqrt(Math.pow(5,2)-Math.pow(this.yVel, 2));
+        }
+        else
+        {
+            this.xVel = Math.sqrt(Math.pow(5,2)-Math.pow(this.yVel, 2));
+        }
+        
+    }
+
+    outOfBounds()
+    {
+        if (this.x - this.radius < 0)
+        {
+            this.reset(2);
+            return 2;
+        }
+        else if (this.x + this.radius > canvas.width)
+        {
+            this.reset(1);
+            return 1;
+        }
+        return 0;
+    }
 }
 
 class Paddel{
@@ -58,7 +88,7 @@ class Paddel{
 
         this.vel = 10;
 
-        this.width = 10;
+        this.width = 20;
         this.height = 100;
 
         this.color = "white";
@@ -114,11 +144,28 @@ class Paddel{
     {
         this.moving = status;
     }
+}
 
-    x(){return this.x;}
-    y(){return this.y;}
-    height(){return this.height;}
-    width(){return this.width;}
+class Counter
+{
+    constructor()
+    {
+        this.p1 = 0;
+        this.p2 = 0;
+    }
+
+    draw()
+    {
+        ctx.fillStyle = "white";
+        ctx.fillText(this.p1.toString(), 10, 50);
+        ctx.fillText(this.p2.toString(), canvas.width - 50, 50);
+    }
+
+    update(player)
+    {
+        if (player == 1){this.p1 += 1;}
+        if (player == 2){this.p2 += 1;}
+    }
 }
 
 
@@ -132,6 +179,14 @@ function drawGame(){
     checkCollision();
     paddel1.draw();
     paddel2.draw();
+    counter.draw();
+
+    var state = ball.outOfBounds();
+    if (state != 0)
+    {
+        counter.update(state);
+        state = 0;
+    }
 }
 
 function clearScreen(){
@@ -173,21 +228,21 @@ function keyUp(event) {
 }
 
 function checkCollision() {
-    distx1 = Math.abs(ball.x - paddel1.x - paddel1.width/2);
-    disty1 = Math.abs(ball.y - paddel1.y - paddel1.height/2);
+    if (ball.x < paddel1.width && (ball.y + ball.radius > paddel1.y && paddel1.y + paddel1. height > ball.y - ball.radius))
+    {
+        ball.bounce(paddel1.width + ball.radius)
+    } 
 
-    distx2 = Math.abs(ball.x - paddel2.x - paddel2.width/2);
-    disty2 = Math.abs(ball.y - paddel2.y - paddel2.height/2);
-
-    if (distx1 <= (paddel1.width/2)) { ball.changeDir() } 
-    else if (disty1 <= (paddel1.height/2)) { ball.changeDir() }
-    else if (distx2 <= (paddel2.width/2)) { ball.changeDir() } 
-    else if (disty2 <= (paddel2.height/2)) { ball.changeDir() }
+    if (ball.x > canvas.width - paddel2.width && (ball.y + ball.radius > paddel2.y && paddel2.y + paddel2. height > ball.y - ball.radius))
+    {
+        ball.bounce(canvas.width - paddel2.width - ball.radius)
+    } 
 }
 
 
-const paddel1 = new Paddel(40);
-const paddel2 = new Paddel(canvas.width-40);
+const paddel1 = new Paddel(0);
+const paddel2 = new Paddel(canvas.width-20);
 const ball = new Ball();
+const counter = new Counter();
 drawGame();
 //setInterval(drawGame, 1000/60);
